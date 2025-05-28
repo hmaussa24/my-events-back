@@ -1,11 +1,10 @@
-# app/use_cases/user/login_user.py
 from typing import Optional
 
 from app.core.exceptions import HTTPException
 from app.core.security import verify_password, create_access_token
 from app.models.user import User
 from app.repositories.user_repository import IUserRepository
-from app.schemas.user import UserLogin, Token # Importamos los esquemas de entrada y salida
+from app.schemas.user import UserLogin, Token
 
 
 class LoginUserUseCase:
@@ -27,20 +26,16 @@ class LoginUserUseCase:
         """
         user = self.user_repository.get_by_email(user_login.email)
 
-        # Verificar si el usuario existe y si la contraseña es correcta
         if not user or not verify_password(user_login.password, user.hashed_password):
             raise HTTPException(
                 status_code=400, detail="Incorrect email or password"
             )
 
-        # Verificar si el usuario está activo
         if not user.is_active:
             raise HTTPException(status_code=400, detail="Inactive user")
 
-        # Generar el token de acceso JWT
         access_token = create_access_token(
-            subject=user.id, # El 'sub' típicamente es el ID del usuario
+            subject=user.id,
         )
 
-        # Retornar el token
         return Token(access_token=access_token)

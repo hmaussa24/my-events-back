@@ -1,7 +1,8 @@
-from datetime import datetime, date, timezone
+from datetime import datetime, date
 from typing import List, Optional
 from enum import Enum as PyEnum
 
+from app.models.user import User
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -28,8 +29,8 @@ class EventBase(SQLModel):
 class Event(EventBase, table=True):
     """Modelo de la tabla 'events'."""
     id: Optional[int] = Field(default=None, primary_key=True)
-    created_at: datetime = Field(default_factory=datetime.now(timezone.utc), nullable=False) # Para PostgreSQL, considera `server_default=text("now()")` o similar
-    updated_at: datetime = Field(default_factory=datetime.now(timezone.utc), sa_column_kwargs={"onupdate": datetime.now.timezone-aware()}, nullable=False)
+    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False) # Para PostgreSQL, considera `server_default=text("now()")` o similar
+    updated_at: datetime = Field(default_factory=datetime.utcnow, sa_column_kwargs={"onupdate": datetime.utcnow}, nullable=False)
     organizer: "User" = Relationship(back_populates="events")
-    sessions: List["Session"] = Relationship(back_populates="event")
-    registrations: List["Registration"] = Relationship(back_populates="event")
+    ##sessions: List["Session"] = Relationship(back_populates="event")
+    ##registrations: List["Registration"] = Relationship(back_populates="event")

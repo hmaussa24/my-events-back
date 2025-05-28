@@ -1,0 +1,39 @@
+from typing import List, Optional
+from sqlmodel import Session, select
+from app.models.envent import Event
+from app.schemas.event import EventCreate, EventUpdate
+
+class EventRepository:
+    def __init__(self, session: Session):
+        self.session = session
+
+    def create_event(self, event_in: EventCreate, organizer_id: int) -> Event:
+        event = Event.model_validate(event_in, update={"organizer_id": organizer_id})
+        self.session.add(event)
+        self.session.commit()
+        self.session.refresh(event)
+        return event
+
+    def get_event_by_id(self, event_id: int) -> Optional[Event]:
+        return self.session.get(Event, event_id)
+
+    def get_all_events(self, skip: int = 0, limit: int = 100) -> List[Event]:
+        statement = select(Event).offset(skip).limit(limit)
+        return self.session.exec(statement).all()
+
+    def search_events_by_name(self, name_query: str, skip: int = 0, limit: int = 100) -> List[Event]:
+        # Para PostgreSQL, puedes usar ILIKE para búsqueda insensible a mayúsculas/minúsculas
+        statement = select(Event).where(Event.name.ilike(f"%{name_query}%")).offset(skip).limit(limit)
+        return self.session.exec(statement).all()
+
+    def update_event(self, event: Event, event_update: EventUpdate) -> Event:
+        update_data = event_update.model_dump(exclude_unset=True)
+        event.sqlmodel_update(update_data)
+        self.session.add(event)
+        self.session.commit()
+        self.session.refresh(event)
+        return event
+
+    def delete_event(self, event: Event):
+        self.session.delete(event)
+        self.session.commit()

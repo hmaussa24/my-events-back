@@ -12,6 +12,7 @@ from app.models.base import SQLModel
 
 # QLModel
 from app.models.user import User
+from app.models.envent import Event
 
 target_metadata = SQLModel.metadata
 
