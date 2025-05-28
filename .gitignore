@@ -1,0 +1,26 @@
+# .gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Poetry
+.poetry/
+poetry.lock # Si no quieres versionar las dependencias exactas, aunque es recomendable
+# Pero sí queremos ignorar el virtualenv de Poetry:
+.venv/
+
+# Environment variables
+.env

@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "my-events-back"
+version = "0.1.0"
+description = "My events es una API para manejo de enventos de una empresa"
+authors = ["Harold Maussa <haroldmaussa@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.111.0"
+uvicorn = {extras = ["standard"], version = "^0.30.1"}
+sqlmodel = "^0.0.18"
+psycopg2-binary = "^2.9.9"
+alembic = "^1.13.1"
+pydantic-settings = "^2.3.4"
+python-dotenv = "^1.0.1"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = "^1.7.4"
+bcrypt = "^4.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.2"
+httpx = "^0.27.0"
+mypy = "^1.10.0"
+ruff = "^0.4.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
