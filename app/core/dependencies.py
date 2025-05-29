@@ -1,6 +1,6 @@
 from typing import Generator, Annotated
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from pydantic import ValidationError
@@ -19,12 +19,21 @@ reusable_oauth2 = OAuth2PasswordBearer(
 )
 
 def get_current_user(
+    request: Request,
     db_session: Annotated[Session, Depends(get_db_session)],
-    token: Annotated[str, Depends(reusable_oauth2)]
 ) -> User:
     """
     Obtiene el usuario actualmente autenticado a partir de un token JWT.
     """
+    token = request.cookies.get("access_token") or request.headers.get("Authorization")
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    if token.startswith("Bearer "):
+        token = token.split(" ")[1]
     try:
         payload = decode_access_token(token)
         token_data = TokenPayload.model_validate(payload)

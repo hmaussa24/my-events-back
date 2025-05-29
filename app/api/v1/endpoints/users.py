@@ -1,9 +1,10 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from app.core.config import Settings
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlmodel import Session
 from fastapi.security import OAuth2PasswordRequestForm
-
+from fastapi.responses import JSONResponse
 
 from app.database.connection import get_db_session
 from app.core.dependencies import get_current_user, get_current_active_superuser
@@ -57,8 +58,9 @@ async def create_user(
             detail=f"Internal server error: {e}"
         )
 
-@router.post("/login/access-token", response_model=Token, summary="Obtener token de acceso JWT")
+@router.post("/login/access-token", summary="Obtener token de acceso JWT")
 async def login_access_token(
+    response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     login_user_uc: Annotated[LoginUserUseCase, Depends(get_login_user_use_case)]
 ):
@@ -68,7 +70,31 @@ async def login_access_token(
     try:
         user_login_data = UserLogin(email=form_data.username, password=form_data.password)
         token = login_user_uc.execute(user_login_data)
-        return token
+        response = JSONResponse(
+            content={
+                "access_token": token.access_token,
+                "refresh_token": token.refresh_token,
+                "token_type": "bearer"
+            },
+            status_code=status.HTTP_200_OK
+        )
+        response.set_cookie(
+            key="access_token",
+            value=token.access_token, 
+            httponly=True, 
+            secure=True,
+            samesite="Lax",
+            max_age= 15 * 60
+        )
+        response.set_cookie(
+            key="refresh_token",
+            value=token.refresh_token,
+            httponly=True,
+            secure=True,
+            samesite="Lax",
+            max_age=7*24*60*60
+        )
+        return response
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -76,6 +102,48 @@ async def login_access_token(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Internal server error: {e}"
         )
+
+@router.post("/login/refresh-token", summary="Obtener un nuevo access token usando refresh token")
+async def refresh_access_token(
+    response: Response,
+    request: Request,
+    login_user_uc: Annotated[LoginUserUseCase, Depends(get_login_user_use_case)]
+):
+    """
+    Recibe un refresh token válido y devuelve un nuevo access token JWT.
+    """
+    try:
+        token = login_user_uc.refresh_access_token(request.cookies.get("refresh_token"))
+        response = JSONResponse(
+            content={
+                "access_token": token.access_token,
+                "token_type": "bearer"
+            },
+            status_code=status.HTTP_200_OK
+        )
+        response.set_cookie(
+            key="access_token",
+            value=token.access_token,
+            httponly=True,
+            secure=True,
+            samesite="Lax",
+            max_age=15 * 60
+        )
+        return response
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal server error: {e}"
+        )
+
+@router.post("/logout")
+def logout(response: Response):
+    response = JSONResponse(content={"message": "Cierre de sesión exitoso"})
+    response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+    return response
 
 
 @router.get("/users/me", response_model=UserResponse, summary="Obtener información del usuario actual")
