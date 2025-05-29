@@ -29,3 +29,20 @@ class EventResponse(EventBase):
     organizer_id: int
     created_at: datetime
     updated_at: datetime
+    
+    class Config:
+        from_attributes = True
+        json_schema_extra = {
+            "example": {
+                "id": 1,
+                "name": "Conferencia de Tecnología",
+                "description": "Una conferencia sobre las últimas tendencias en tecnología.",
+                "event_date": "2025-05-28",
+                "location": "Auditorio Principal",
+                "capacity": 500,
+                "status": "DRAFT",
+                "organizer_id": 1,
+                "created_at": "2025-05-01T10:00:00.000Z",
+                "updated_at": "2025-05-01T10:00:00.000Z",
+            }
+        }

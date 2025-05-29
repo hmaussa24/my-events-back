@@ -2,7 +2,6 @@ import os
 import sys
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 sys.path.append(os.path.abspath("."))
@@ -13,6 +12,7 @@ from app.models.base import SQLModel
 # QLModel
 from app.models.user import User
 from app.models.envent import Event
+from app.models.session import Session
 
 target_metadata = SQLModel.metadata
 

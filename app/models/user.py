@@ -2,6 +2,7 @@ from asyncio import Event
 from typing import Optional
 from datetime import datetime
 
+from app.models.session import Session
 from sqlmodel import Field, SQLModel, Relationship
 
 class User(SQLModel, table=True):
@@ -17,16 +18,4 @@ class User(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
     updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
     events: list["Event"] = Relationship(back_populates="organizer")
-
-    class Config:
-        """
-        Configuración Pydantic para el modelo.
-        """
-        json_schema_extra = {
-            "example": {
-                "email": "user@example.com",
-                "hashed_password": "supersecretpasswordhash",
-                "is_active": True,
-                "is_superuser": False,
-            }
-        }
+    sessions_as_speaker: list["Session"] = Relationship(back_populates="speaker")
