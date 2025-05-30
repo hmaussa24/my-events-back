@@ -7,8 +7,8 @@ class EventRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    def create_event(self, event_in: EventCreate, organizer_id: int) -> Event:
-        event = Event.model_validate(event_in, update={"organizer_id": organizer_id})
+    def create_event(self, event_in: EventCreate, organizer_id: int, image: str) -> Event:
+        event = Event.model_validate(event_in, update={"organizer_id": organizer_id, "image_url": image})
         self.session.add(event)
         self.session.commit()
         self.session.refresh(event)

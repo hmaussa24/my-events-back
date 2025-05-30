@@ -27,6 +27,7 @@ class EventUpdate(EventBase):
 class EventResponse(EventBase):
     id: int
     organizer_id: int
+    image_url: Optional[str] = Field(default=None, max_length=500)
     created_at: datetime
     updated_at: datetime
     

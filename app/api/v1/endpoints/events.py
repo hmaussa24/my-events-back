@@ -1,5 +1,5 @@
 from typing import Annotated, List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile, Form
 from sqlmodel import Session
 
 from app.database.connection import get_db_session
@@ -33,14 +33,33 @@ def get_delete_event_use_case(event_repo: Annotated[EventRepository, Depends(get
 
 @router.post("/event", response_model=EventResponse, status_code=status.HTTP_201_CREATED, summary="Crear un nuevo evento")
 async def create_event(
-    event_in: EventCreate,
+    current_user: Annotated[UserResponse, Depends(get_current_user)],
     create_event_uc: Annotated[CreateEventUseCase, Depends(get_create_event_use_case)],
-    current_user: Annotated[UserResponse, Depends(get_current_user)]
+    name: str = Form(...),
+    description: str = Form(...),
+    event_date: str = Form(...),
+    location: str = Form(...),
+    capacity: int = Form(...),
+    status: str = Form(...),
+    image: UploadFile = File(...),
 ):
     """
     Crea un nuevo evento. Requiere autenticación. El usuario autenticado será el organizador.
+    Permite subir una imagen del evento.
     """
-    return create_event_uc.execute(event_in, current_user.id)
+    image_filename = f"event_{current_user.id}_{image.filename}"
+    image_path = f"static/events/{image_filename}"
+    with open(image_path, "wb") as buffer:
+        buffer.write(await image.read())
+    event_in = EventCreate(
+        name=name,
+        description=description,
+        event_date=event_date,
+        location=location,
+        capacity=capacity,
+        status=status,
+    )
+    return create_event_uc.execute(event_in, current_user.id, image=image_path)
 
 @router.get("/events", response_model=List[EventResponse], summary="Obtener todos los eventos o buscar por nombre")
 async def get_events(

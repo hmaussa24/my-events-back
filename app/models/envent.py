@@ -23,6 +23,7 @@ class EventBase(SQLModel):
     location: str = Field(max_length=200)
     capacity: int = Field(ge=0)
     status: EventStatus = Field(default=EventStatus.DRAFT)
+    image_url: Optional[str] = Field(default=None, max_length=500)
 
     organizer_id: int = Field(foreign_key="user.id")
 
