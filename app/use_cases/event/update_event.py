@@ -16,7 +16,7 @@ class UpdateEventUseCase:
         if event.organizer_id != current_user_id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to update this event")
 
-        if event_update.event_date and event_update.event_date < datetime.now().date():
+        if event.status != EventStatus.COMPLETED and event_update.event_date and event_update.event_date < datetime.now().date():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Event date cannot be in the past")
 
         if event.status == EventStatus.COMPLETED and event_update.status and event_update.status != EventStatus.COMPLETED:

@@ -49,6 +49,8 @@ async def register_for_event(
         return RegistrationResponse.model_validate(registration)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
 
 @router.get("/event/{event_id}/registrations", response_model=List[RegistrationResponse], summary="Obtener usuarios registrados en un evento")
 async def get_event_registrations(
@@ -59,7 +61,12 @@ async def get_event_registrations(
     """
     Obtiene todos los usuarios registrados en un evento.
     """
-    return get_user_registrations_uc.execute(event_id)
+    try:
+        return get_user_registrations_uc.execute(event_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
 
 @router.get("/user/registrations", response_model=List[RegistrationResponse], summary="Obtener eventos a los que el usuario está registrado")
 async def get_user_event_registrations(
@@ -69,4 +76,9 @@ async def get_user_event_registrations(
     """
     Obtiene todos los eventos a los que el usuario autenticado está registrado.
     """
-    return get_user_event_registrations_uc.execute(current_user.id)
+    try:
+        return get_user_event_registrations_uc.execute(current_user.id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")

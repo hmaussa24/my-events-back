@@ -1,7 +1,7 @@
 from typing import List, Optional
 from sqlmodel import Session, select
 from app.models.envent import Event
-from app.schemas.event import EventCreate, EventUpdate
+from app.schemas.event import EventCreate, EventUpdate, EventStatus
 
 class EventRepository:
     def __init__(self, session: Session):
@@ -26,11 +26,11 @@ class EventRepository:
         return self.session.exec(statement).all()
     
     def get_all_events(self, skip: int = 0, limit: int = 100) -> List[Event]:
-        statement = select(Event).offset(skip).limit(limit)
+        statement = select(Event).where(Event.status == EventStatus.PUBLISHED).offset(skip).limit(limit)
         return self.session.exec(statement).all()
     
     def search_events_by_name(self, name_query: str, skip: int = 0, limit: int = 100) -> List[Event]:
-        statement = select(Event).where(Event.name.ilike(f"%{name_query}%")).offset(skip).limit(limit)
+        statement = select(Event).where(Event.name.ilike(f"%{name_query}%"), Event.status == EventStatus.PUBLISHED).offset(skip).limit(limit)
         return self.session.exec(statement).all()
 
     def update_event(self, event: Event, event_update: EventUpdate) -> Event:

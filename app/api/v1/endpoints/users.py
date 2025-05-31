@@ -50,6 +50,8 @@ async def create_user(
     try:
         new_user = create_user_uc.execute(user_in)
         return new_user
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -95,6 +97,8 @@ async def login_access_token(
             max_age=7*24*60*60
         )
         return response
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -130,6 +134,8 @@ async def refresh_access_token(
             max_age=15 * 60
         )
         return response
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -154,8 +160,12 @@ async def read_users_me(
     Obtiene la información del usuario autenticado actualmente.
     Requiere autenticación JWT.
     """
-    return current_user 
-
+    try:
+        return current_user
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
 
 @router.get("/users/{user_id}", response_model=UserResponse, summary="Obtener usuario por ID (solo superusuarios)")
 async def read_user_by_id(
@@ -170,6 +180,8 @@ async def read_user_by_id(
     try:
         user = get_user_uc.execute_by_id(user_id)
         return user
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except HTTPException as e:
         raise e
     except Exception as e:

@@ -1,5 +1,5 @@
 from typing import Annotated, List, Optional
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, status, Query, HTTPException
 from sqlmodel import Session
 
 from app.database.connection import get_db_session
@@ -34,7 +34,12 @@ async def create_session(
     """
     Crea una nueva sesión. Requiere autenticación.
     """
-    return create_session_uc.execute(session_in)
+    try:
+        return create_session_uc.execute(session_in)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
 
 @router.get("/sessions/{event_id}", response_model=List[SessionResponse], summary="Obtener todas las sesiones o buscar por nombre")
 async def get_sessions(
@@ -46,7 +51,12 @@ async def get_sessions(
     """
     Obtiene una lista de sesiones. Permite búsqueda por nombre y paginación.
     """
-    return get_session_uc.execute_all(event_id=event_id, skip=skip, limit=limit)
+    try:
+        return get_session_uc.execute_all(event_id=event_id, skip=skip, limit=limit)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
 
 @router.get("/session/{session_id}", response_model=SessionResponse, summary="Obtener una sesión por ID")
 async def get_session_by_id(
@@ -56,7 +66,12 @@ async def get_session_by_id(
     """
     Obtiene los detalles de una sesión específica por su ID.
     """
-    return get_session_uc.execute_by_id(session_id)
+    try:
+        return get_session_uc.execute_by_id(session_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
 
 @router.delete("/session/{session_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Eliminar una sesión")
 async def delete_session(
@@ -67,5 +82,10 @@ async def delete_session(
     """
     Elimina una sesión. Solo el speaker o un superusuario pueden hacerlo.
     """
-    delete_session_uc.execute(session_id, current_user.id)
-    return
+    try:
+        delete_session_uc.execute(session_id, current_user.id)
+        return
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
