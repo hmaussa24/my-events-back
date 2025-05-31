@@ -17,12 +17,19 @@ class EventRepository:
     def get_event_by_id(self, event_id: int) -> Optional[Event]:
         return self.session.get(Event, event_id)
 
+    def get_all_events_by_user(self, current_user_id: int, skip: int = 0, limit: int = 100) -> List[Event]:
+        statement = select(Event).where(Event.organizer_id == current_user_id).offset(skip).limit(limit)
+        return self.session.exec(statement).all()
+
+    def search_events_by_name_by_user(self, name_query: str, current_user_id: int, skip: int = 0, limit: int = 100) -> List[Event]:
+        statement = select(Event).where(Event.name.ilike(f"%{name_query}%"), Event.organizer_id == current_user_id).offset(skip).limit(limit)
+        return self.session.exec(statement).all()
+    
     def get_all_events(self, skip: int = 0, limit: int = 100) -> List[Event]:
         statement = select(Event).offset(skip).limit(limit)
         return self.session.exec(statement).all()
-
+    
     def search_events_by_name(self, name_query: str, skip: int = 0, limit: int = 100) -> List[Event]:
-        # Para PostgreSQL, puedes usar ILIKE para búsqueda insensible a mayúsculas/minúsculas
         statement = select(Event).where(Event.name.ilike(f"%{name_query}%")).offset(skip).limit(limit)
         return self.session.exec(statement).all()
 

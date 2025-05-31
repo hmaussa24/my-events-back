@@ -13,10 +13,18 @@ class GetEventUseCase:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
         return EventResponse.model_validate(event)
 
+    def execute_all_by_user(self, current_user_id: int, skip: int = 0, limit: int = 100) -> List[EventResponse]:
+        events = self.event_repo.get_all_events_by_user(current_user_id=current_user_id, skip=skip, limit=limit)
+        return [EventResponse.model_validate(event) for event in events]
+
+    def execute_search_by_name_by_user(self, name_query: str, current_user_id: int, skip: int = 0, limit: int = 100) -> List[EventResponse]:
+        events = self.event_repo.search_events_by_name_by_user(name_query=name_query, current_user_id=current_user_id, skip=skip, limit=limit)
+        return [EventResponse.model_validate(event) for event in events]
+    
     def execute_all(self, skip: int = 0, limit: int = 100) -> List[EventResponse]:
         events = self.event_repo.get_all_events(skip=skip, limit=limit)
         return [EventResponse.model_validate(event) for event in events]
-
+    
     def execute_search_by_name(self, name_query: str, skip: int = 0, limit: int = 100) -> List[EventResponse]:
         events = self.event_repo.search_events_by_name(name_query=name_query, skip=skip, limit=limit)
         return [EventResponse.model_validate(event) for event in events]

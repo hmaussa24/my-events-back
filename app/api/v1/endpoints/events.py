@@ -64,6 +64,21 @@ async def create_event(
 @router.get("/events", response_model=List[EventResponse], summary="Obtener todos los eventos o buscar por nombre")
 async def get_events(
     get_event_uc: Annotated[GetEventUseCase, Depends(get_get_event_use_case)],
+    current_user: Annotated[UserResponse, Depends(get_current_user)],
+    name_query: Optional[str] = Query(None, description="Buscar eventos por nombre o parte del nombre"),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=0, le=100)
+):
+    """
+    Obtiene una lista de eventos. Permite búsqueda por nombre y paginación.
+    """
+    if name_query:
+        return get_event_uc.execute_search_by_name_by_user(name_query=name_query, current_user_id=current_user.id, skip=skip, limit=limit)
+    return get_event_uc.execute_all_by_user(current_user_id=current_user.id, skip=skip, limit=limit)
+
+@router.get("/events/all", response_model=List[EventResponse], summary="Obtener todos los eventos o buscar por nombre")
+async def get_events(
+    get_event_uc: Annotated[GetEventUseCase, Depends(get_get_event_use_case)],
     name_query: Optional[str] = Query(None, description="Buscar eventos por nombre o parte del nombre"),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=0, le=100)
