@@ -1,4 +1,3 @@
-# app/repositories/user_repository.py
 from typing import Optional
 
 from sqlmodel import Session
@@ -25,5 +24,4 @@ class UserRepository(SQLModelRepository[User], IUserRepository):
         super().__init__(model=User, session=session)
 
     def get_by_email(self, email: str) -> Optional[User]:
-        # Aprovechamos el método genérico get_by_field que definimos en SQLModelRepository
         return self.get_by_field("email", email)

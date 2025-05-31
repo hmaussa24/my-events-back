@@ -2,6 +2,7 @@ from datetime import datetime, date
 from typing import List, Optional
 from enum import Enum as PyEnum
 
+from app.models.registration import Registration
 from app.models.session import Session
 from app.models.user import User
 from sqlmodel import Field, Relationship, SQLModel
@@ -35,4 +36,4 @@ class Event(EventBase, table=True):
     updated_at: datetime = Field(default_factory=datetime.utcnow, sa_column_kwargs={"onupdate": datetime.utcnow}, nullable=False)
     organizer: "User" = Relationship(back_populates="events")
     sessions: List["Session"] = Relationship(back_populates="event")
-    ##registrations: List["Registration"] = Relationship(back_populates="event")
+    registrations: List["Registration"] = Relationship(back_populates="event")

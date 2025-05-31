@@ -2,6 +2,7 @@ from asyncio import Event
 from typing import Optional
 from datetime import datetime
 
+from app.models.registration import Registration
 from app.models.session import Session
 from sqlmodel import Field, SQLModel, Relationship
 
@@ -19,3 +20,4 @@ class User(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
     events: list["Event"] = Relationship(back_populates="organizer")
     sessions_as_speaker: list["Session"] = Relationship(back_populates="speaker")
+    registrations: list["Registration"] = Relationship(back_populates="user")
