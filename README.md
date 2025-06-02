@@ -8,7 +8,7 @@ Backend de gestión de eventos desarrollado con FastAPI, PostgreSQL y Docker.
 
 ## Configuración
 1. Clona el repositorio y entra en la carpeta del proyecto.
-2. Edita el archivo `.env` si necesitas cambiar credenciales o configuraciones.
+2. Crea y dita el archivo `.env` y copia del `.env.example` las credenciales necesarias.
 
 ## Ejecución rápida
 Levanta la API y la base de datos (las migraciones se aplican automáticamente):
