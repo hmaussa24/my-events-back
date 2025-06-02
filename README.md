@@ -67,8 +67,8 @@ docker-compose up --build
 - La base de datos PostgreSQL estará en: localhost:5433
 
 ## Endpoints principales
-- Documentación interactiva: http://localhost:8000/docs
-- Documentación alternativa: http://localhost:8000/redoc
+- Documentación interactiva: http://localhost:8000/api/v1/docs
+- Documentación alternativa: http://localhost:8000/api/v1/redoc
 
 ## Estructura del proyecto
 - `app/` Código fuente principal
